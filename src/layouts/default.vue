@@ -1,5 +1,5 @@
 <template>
-  <header>Boilerplate Vue 3 + Typescript + 🍍 Pinia</header>
+  <header>Gestion Tareas hechas con Vue 3 + Typescript + 🍍 Pinia</header>
 
   <hr />
 
