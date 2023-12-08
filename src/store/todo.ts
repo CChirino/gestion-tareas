@@ -1,4 +1,4 @@
-import { defineStore, acceptHMRUpdate } from 'pinia';
+import { defineStore } from 'pinia';
 import { Task } from './../models/task.models';
 import { generateID, sleep } from './../utils';
 
@@ -7,20 +7,23 @@ interface TodoState {
   loading: boolean;
 }
 
-export const useTodoStore = defineStore({
+interface TodoActions {
+  addTask(name: string): Promise<void>;
+  deleteTask(id: string): Promise<void>;
+  updateTask(id: string): Promise<void>;
+}
+
+export const useTodoStore = defineStore<TodoState, {}, TodoActions>({
   id: 'todo',
   state: (): TodoState => ({
     tasks: [],
     loading: false,
   }),
-  persist: {
-    paths: ['tasks'],
-  },
-  getters: {},
   actions: {
     async addTask(name: string): Promise<void> {
       this.loading = true;
-      this.tasks.push({ name, done: false, id: generateID() });
+      const newTask: Task = { name, done: false, id: generateID() };
+      this.tasks.push(newTask);
       await sleep(1000);
       this.loading = false;
     },
@@ -32,10 +35,10 @@ export const useTodoStore = defineStore({
     },
     async updateTask(id: string): Promise<void> {
       this.loading = true;
-      const task = this.tasks.find((task) => task.id === id);
+      const taskIndex = this.tasks.findIndex((task) => task.id === id);
 
-      if (task) {
-        task.done = !task.done;
+      if (taskIndex !== -1) {
+        this.tasks[taskIndex].done = !this.tasks[taskIndex].done;
       }
 
       await sleep(1000);
@@ -43,8 +46,3 @@ export const useTodoStore = defineStore({
     },
   },
 });
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useTodoStore, import.meta.hot));
-}
-
